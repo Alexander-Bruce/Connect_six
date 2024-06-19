@@ -31,7 +31,6 @@ public class MarkingBoard implements Mark_Point, Judge_Position {
                         aux_board[i][j] = side;
                         int mark_self_second = markself(analyse.getResults(side, i, j));
 
-                        // if(side == BLACK) Points.add(new Point(i, j, mark_enemy_second + mark_self_second - mark_enemy_first));
                         Point point = new Point(i, j,  mark_self_second + mark_enemy_second - mark_enemy_first);
                         results.add(new Step(point, new Point(0, 0, 0), point.mark));
                     }

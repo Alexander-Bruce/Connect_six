@@ -32,7 +32,6 @@ public class CalculatingBestSamples implements Judge_Position, Mark_Point {
                         aux_board[i][j] = side;
                         int mark_self_second = markself(analyse.getResults(side, i, j));
 
-                        // if(side == BLACK) marks[i * BOARD_SIZE + j] = mark_self_second1 + mark_enemy_second1 - mark_enemy_first1;
                         points.add(new Point(i, j, mark_self_second + mark_enemy_second - mark_enemy_first));
                     }
                 }
@@ -50,7 +49,6 @@ public class CalculatingBestSamples implements Judge_Position, Mark_Point {
         //get the best step in results
         if(!results.isEmpty())results.sort((o1, o2) -> o2.value - o1.value);
         else results.add(new Step(new Point(0, 0), new Point(0, 0), 0));
-        // for(Step step: results) System.out.println(step.toString());
     }
 
     public CalculatingBestSamples(int [][]board, int side, ArrayList<Step> results){
