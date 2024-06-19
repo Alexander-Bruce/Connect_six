@@ -26,7 +26,6 @@ public class Main {
             int x, y;
             x = scanner.nextInt();
             y = scanner.nextInt();
-            scanner.nextLine();
             board[x - 1][y - 1] = color;
         }
     }
