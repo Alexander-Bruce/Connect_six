@@ -88,6 +88,7 @@ public class Main {
             //side = 2, white turn
             if(side == 1) side = BLACK;
             else side = WHITE;
+
             //calculate the best step for now
             MarkingBoard MarkingBoard = new MarkingBoard(board, side);
             CalculatingBestSamples CalculatingBestSamples = new CalculatingBestSamples(board, side, MarkingBoard.getPoints());

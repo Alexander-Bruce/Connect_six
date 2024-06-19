@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 定义工程名和源码目录
-PROJECT_NAME="2210025111"
+PROJECT_NAME="Connect_6_2nd_version"
 SRC_DIR="src"
 BUILD_DIR="bin"
 
@@ -15,4 +15,3 @@ javac -d $BUILD_DIR $(find $SRC_DIR -name "*.java")
 
 # 运行程序
 java -cp $BUILD_DIR Main
-
