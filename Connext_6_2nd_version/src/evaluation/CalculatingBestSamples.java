@@ -7,19 +7,19 @@ import variables.Step;
 
 import java.util.ArrayList;
 
+
 public class CalculatingBestSamples implements Judge_Position, Mark_Point {
 
-    private final Step results = new Step();
     private final int rivalSide;
     private final static int BLACK = 0;
     private final static int WHITE = 1;
     private final static int EMPTY = 2;
     private final static int BOARD_SIZE = 17;
-    private final ArrayList<Point> max_marks_points = new ArrayList<>();
+    private final ArrayList<Step> results;
     private int [][]board_tree = new int[BOARD_SIZE][BOARD_SIZE];
     private int [][]aux_board = new int[BOARD_SIZE][BOARD_SIZE];
 
-    private void considering_position(int[][] board, int side, int[] marks){
+    private void considering_position(int[][] board, int side, ArrayList<Point> points){
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 if (board[i][j] == EMPTY && surround(board, i, j, side, BLACK, WHITE)) { //只考虑棋盘的空位
@@ -31,69 +31,52 @@ public class CalculatingBestSamples implements Judge_Position, Mark_Point {
                         int mark_enemy_second = markenemy(analyse.getResults(rivalSide, i, j));
                         aux_board[i][j] = side;
                         int mark_self_second = markself(analyse.getResults(side, i, j));
-                        marks[i * BOARD_SIZE + j] = mark_enemy_second + mark_self_second - mark_enemy_first;
+
+                        // if(side == BLACK) marks[i * BOARD_SIZE + j] = mark_self_second1 + mark_enemy_second1 - mark_enemy_first1;
+                        points.add(new Point(i, j, mark_self_second + mark_enemy_second - mark_enemy_first));
                     }
                 }
             }
         }
     }
 
-    private Point find_max_marks_point(int []marks){
-        int max_mark = -1, max_point_x = 0, max_point_y = 0;
-        for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++){
-            if(marks[i] > max_mark){
-                max_mark = marks[i];
-                max_point_x = i / BOARD_SIZE;
-                max_point_y = i % BOARD_SIZE;
-            }
-        }
-
-        return new Point(max_point_x, max_point_y, max_mark);
+    private Point find_max_marks_point(ArrayList<Point> points){
+        points.sort((o1, o2) -> o2.mark - o1.mark);
+        return points.get(0);
     }
 
 
-    private void find_best_step(ArrayList<Point> Points){
-        //get the best step having same index and max score
-        int aitree_temp_max = -1;
-        for (int i = 0; i < Points.size() && i < max_marks_points.size(); i++)
-        {
-            Point max = Points.get(i);
-            Point maxtree = max_marks_points.get(i);
-            if (max.mark >= 0 && maxtree.mark >= 0) {
-                if (max.mark + maxtree.mark > aitree_temp_max && !(max.x == maxtree.x && max.y == maxtree.y)) {
-                    results.setFirststep(max.x, max.y);
-                    results.setSecondstep(maxtree.x, maxtree.y);
-                    aitree_temp_max = max.mark + maxtree.mark;
-                }
-            }
-            else break;
-        }
+    private void find_best_step(){
+        //get the best step in results
+        if(!results.isEmpty())results.sort((o1, o2) -> o2.value - o1.value);
+        else results.add(new Step(new Point(0, 0), new Point(0, 0), 0));
+        // for(Step step: results) System.out.println(step.toString());
     }
 
-    public Step getResults(){
-        return results;
-    }
-
-    public CalculatingBestSamples(int [][]board, int side, ArrayList<Point> Points){
+    public CalculatingBestSamples(int [][]board, int side, ArrayList<Step> results){
         //determine the color of rival
         rivalSide = (side == BLACK) ? WHITE : BLACK;
+        this.results = results;
 
         //enumerate the point in points
-        for (Point point : Points) {
+        for (Step result : results) {
             board_tree = copy_board(board, board_tree);
 
-            if (point.mark >= 0) board_tree[point.x][point.y] = side;
-            else break;
+            //modify the board
+            Point point = result.getFirststep();
+            board_tree[point.x][point.y] = side;
 
-            //clarify the marks of the points
-            int[]marks = new int[BOARD_SIZE * BOARD_SIZE];
+            //considering the position
+            ArrayList<Point> points = new ArrayList<>();
+            considering_position(board_tree, side, points);
 
-            //find best point based on first point
-            considering_position(board_tree, side, marks);
-            Point max_marks_point = find_max_marks_point(marks);
-            max_marks_points.add(max_marks_point);
+            //find the max value point
+            Point max_value_point = find_max_marks_point(points);
+
+            if (!points.isEmpty()) result.setSecondstep(max_value_point);
+            else result.setSecondstep(new Point(0, 0));
         }
-        find_best_step(Points);
+        find_best_step();
     }
 
 }

@@ -12,6 +12,8 @@ public class Main {
     private final static int WHITE = 1;
     private final static int EMPTY = 2;
     private static final Scanner scanner = new Scanner(System.in);
+    private static Step nextSteps;
+    private static ArrayList<Step> results;
 
     private static void initBoard(){
         for(int i = 0; i < 17; i++){
@@ -80,22 +82,25 @@ public class Main {
 
         if(side == 0){
             //black first
-            move.setFirststep(8, 10);
+            move.setFirststep(7, 5);
             board[move.getFirststep().x][move.getFirststep().y] = BLACK;
-            System.out.println((move.getFirststep().x + 1) + " " + (move.getFirststep().y + 1));
+            System.out.print((move.getFirststep().x + 1) + " " + (move.getFirststep().y + 1));
         } else {
             //side = 1, black turn
             //side = 2, white turn
             if(side == 1) side = BLACK;
             else side = WHITE;
+
             //calculate the best step for now
-            MarkingBoard MarkingBoard = new MarkingBoard(board, side);
-            CalculatingBestSamples CalculatingBestSamples = new CalculatingBestSamples(board, side, MarkingBoard.getPoints());
-            Step nextSteps = CalculatingBestSamples.getResults();
+            results = new ArrayList<>();
+            new CalculatingBestSamples(board, side, new MarkingBoard(board, side, results).getResults());
+            nextSteps = results.get(0);
             CheckStep(nextSteps, side);
-            board[nextSteps.getFirststep().x][nextSteps.getFirststep().y] = side;
-            board[nextSteps.getSecondstep().x][nextSteps.getSecondstep().y] = side;
-            System.out.println((nextSteps.getFirststep().x + 1) + " " + (nextSteps.getFirststep().y + 1) + " " + (nextSteps.getSecondstep().x + 1) + " " + (nextSteps.getSecondstep().y + 1));
+            System.out.print(nextSteps.toString());
         }
     }
 }
+
+
+//7 7 8 8 9 9 10 10 11 11
+//7 9 5 6 3 4 1 1 6 9 17 17

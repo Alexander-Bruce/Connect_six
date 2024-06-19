@@ -2,14 +2,20 @@ package variables;
 
 public class Step {
     private Point firststep;
-    private Point secondste;
+    private Point secondstep;
 
-    private int value;
+    public int value;
 
     public Step(){
         firststep = new Point(8, 8);
-        secondste = new Point(8, 8);
+        secondstep = new Point(8, 8);
         value = 0;
+    }
+
+    public Step(Point p1, Point p2, int value){
+        firststep = p1;
+        secondstep = p2;
+        this.value = value;
     }
 
     public void setFirststep(int x1, int y1){
@@ -18,8 +24,13 @@ public class Step {
     }
 
     public void setSecondstep(int x1, int y1){
-        secondste.x = x1;
-        secondste.y = y1;
+        secondstep.x = x1;
+        secondstep.y = y1;
+    }
+
+    public void setSecondstep(Point p){
+        secondstep = p;
+        value = firststep.mark + secondstep.mark;
     }
 
     public Point getFirststep(){
@@ -27,6 +38,11 @@ public class Step {
     }
 
     public Point getSecondstep(){
-        return secondste;
+        return secondstep;
+    }
+
+
+    public String toString(){
+        return firststep.toString() + " " + secondstep.toString();
     }
 }
