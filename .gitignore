@@ -25,5 +25,9 @@ bin/
 ### VS Code ###
 .vscode/
 
+### Java build output ###
+build/
+*.class
+
 ### Mac OS ###
 .DS_Store
