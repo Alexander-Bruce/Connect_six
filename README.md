@@ -1,92 +1,91 @@
 # Connect Six AI
 
-Connect Six AI 是一个 17 x 17 六子棋（Connect6）命令行落子程序。程序从标准输入读取当前棋盘和执棋方，并输出下一手落子坐标：开局时输出 1 个点，正常回合输出 2 个点。
+Language: English | [中文](README.zh-CN.md)
 
-## 版本选择与改进说明
+Connect Six AI is a command-line move generator for Connect6 on a 17 x 17 board. It reads the current board state and side to move from standard input, then prints the next move: one point for the opening move, or two points for a normal turn.
 
-仓库原来同时包含 `Connext_6_1st_version` 和 `Connext_6_2nd_version`。对比后，2nd 版更适合作为最终版基础：它把候选第一落点、第二落点和总分组织成 `Step`，再按分值排序，结构比 1st 版中并行维护两个点列表更清晰，也更方便继续扩展。
+## Technical Implementation
 
-最终版在 2nd 版思路上做了这些整理：
+- The board is represented as a `17 x 17` integer matrix: `0` for black, `1` for white, and `2` for empty.
+- `ConnectSixAi` generates candidate points from empty cells within a radius of 3 around existing stones. If the board is empty, it opens at the center `(9, 9)`.
+- `BoardEvaluator` scores a point by scanning four directions: horizontal, vertical, diagonal, and anti-diagonal. It counts connected stones and open ends, then assigns higher weights to six-in-a-row, open five, blocked five, open four, and smaller patterns.
+- Move selection uses a two-stone heuristic search. It ranks first-stone candidates, simulates each strong first point, recalculates second-stone candidates, then scores the final pair.
+- Attack and defense are both considered. Defensive score is slightly boosted so the AI blocks immediate opponent threats before chasing lower-value attacks.
+- The program validates board size, side values, coordinates, duplicate stones, and falls back to the first legal pair if no nearby candidate is found.
 
-- 合并为根目录下的一份项目，避免两个版本并存导致使用者不知道运行哪一份。
-- 使用中心点 `(9, 9)` 作为先手开局点，比旧版硬编码的偏置开局更稳健。
-- 修正旧版评分分析会在多次调用之间累加状态的问题，保证每个候选点独立评分。
-- 修正候选为空时可能越界的问题，并增加兜底合法落子选择。
-- 输出统一使用换行，便于命令行、评测器和脚本读取。
-- 增加 Windows PowerShell 与 Bash 运行脚本，并加入一个轻量级自检类 `Test`。
-
-## 项目结构
+## Project Structure
 
 ```text
 .
 ├── src/
-│   ├── Main.java                  # 标准输入/输出入口
-│   ├── Test.java                  # 轻量级自检
+│   ├── Main.java                  # Standard input/output entry point
+│   ├── Test.java                  # Lightweight self-checks
 │   ├── evaluation/
-│   │   ├── BoardEvaluator.java    # 棋型评分
-│   │   └── ConnectSixAi.java      # 候选生成与两点组合搜索
+│   │   ├── BoardEvaluator.java    # Pattern scoring
+│   │   └── ConnectSixAi.java      # Candidate generation and move search
 │   └── variables/
-│       ├── Point.java             # 坐标值对象
-│       └── Step.java              # 一手两点落子
-├── run.sh                         # macOS/Linux 运行脚本
-├── run.ps1                        # Windows PowerShell 运行脚本
+│       ├── Point.java             # Board coordinate value object
+│       └── Step.java              # Two-point move value object
+├── run.sh                         # macOS/Linux run script
+├── run.ps1                        # Windows PowerShell run script
 ├── README.md
+├── README.zh-CN.md
 └── LICENSE
 ```
 
-## 环境要求
+## Requirements
 
-- JDK 8 或更高版本
-- 可用的 `javac` 和 `java` 命令
+- JDK 8 or later
+- Available `javac` and `java` commands
 
-检查 Java 环境：
+Check your Java environment:
 
 ```bash
 javac -version
 java -version
 ```
 
-## 输入格式
+## Input Format
 
-第一行包含 3 个整数：
+The first line contains 3 integers:
 
 ```text
 blackN whiteN side
 ```
 
-- `blackN`：棋盘上已有黑子数量。
-- `whiteN`：棋盘上已有白子数量。
-- `side`：当前状态。
-  - `0`：程序作为黑方先手开局，此时不需要继续输入棋盘点位。
-  - `1`：轮到黑方落子。
-  - `2`：轮到白方落子。
+- `blackN`: number of black stones already on the board.
+- `whiteN`: number of white stones already on the board.
+- `side`: current state.
+  - `0`: the program plays the black opening move. No board coordinates are needed.
+  - `1`: black to move.
+  - `2`: white to move.
 
-当 `side` 为 `1` 或 `2` 时，后续输入：
+When `side` is `1` or `2`, provide the remaining input in this order:
 
-1. `blackN` 行黑子坐标。
-2. `whiteN` 行白子坐标。
+1. `blackN` lines of black-stone coordinates.
+2. `whiteN` lines of white-stone coordinates.
 
-坐标均为 1 到 17 的行列坐标：
-
-```text
-row column
-```
-
-## 输出格式
-
-开局时输出一个坐标：
+Coordinates are 1-based row and column values from 1 to 17:
 
 ```text
 row column
 ```
 
-正常回合输出两个坐标：
+## Output Format
+
+Opening move:
+
+```text
+row column
+```
+
+Normal turn:
 
 ```text
 row1 column1 row2 column2
 ```
 
-## 运行方法
+## Usage
 
 ### Windows PowerShell
 
@@ -94,7 +93,7 @@ row1 column1 row2 column2
 .\run.ps1
 ```
 
-也可以直接传入输入：
+Pipe input directly:
 
 ```powershell
 @"
@@ -110,13 +109,13 @@ chmod +x ./run.sh
 ./run.sh
 ```
 
-也可以直接传入输入：
+Pipe input directly:
 
 ```bash
 printf "1 0 2\n9 9\n" | ./run.sh
 ```
 
-### 手动编译运行
+### Manual Build And Run
 
 ```bash
 mkdir -p build/classes
@@ -124,59 +123,48 @@ javac -encoding UTF-8 -d build/classes $(find src -name "*.java")
 java -cp build/classes Main
 ```
 
-## 示例
+## Examples
 
-黑方先手开局：
+Black opening move:
 
 ```text
 0 0 0
 ```
 
-输出：
+Output:
 
 ```text
 9 9
 ```
 
-棋盘已有一个黑子，轮到白方：
+One black stone on the board, white to move:
 
 ```text
 1 0 2
 9 9
 ```
 
-可能输出：
+Possible output:
 
 ```text
 8 9 9 8
 ```
 
-具体输出会由当前评分和候选排序决定，但保证坐标合法且两个点不重复。
+The exact move depends on the current board evaluation, but the output will contain legal, distinct empty points.
 
-## 自检
+## Self-Check
 
-编译后可以运行自检类：
+After compiling, run:
 
 ```bash
 java -cp build/classes Test
 ```
 
-自检覆盖：
+The self-check covers:
 
-- 开局点是否为中心。
-- 常规回合是否输出两个合法空点。
-- 对手形成活五时是否优先封堵。
-
-## 算法概览
-
-最终版使用启发式搜索：
-
-1. 只在已有棋子周围 3 格范围内生成候选点，减少无效搜索。
-2. 对每个候选点分别计算己方进攻价值和对手威胁价值。
-3. 第一落点取排名靠前的候选点，模拟后重新计算第二落点。
-4. 对两点组合进行总分排序，分数相同时选择更靠近棋盘中心的组合。
-
-评分重点包括六连、活五、眠五、活四、眠四以及较低阶连接。防守分会略微加权，因此当对手有直接成六威胁时，程序会优先封堵。
+- Center opening move.
+- Legal two-point response.
+- Blocking an immediate open-five threat.
 
 ## License
 
